@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Download the Mumbai121 App | Get Faster Access to Jobs</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Poppins:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <script src="https://cdn.jsdelivr.net/npm/sienna-accessibility@latest/dist/sienna-accessibility.umd.js" defer></script>
+    <header>
+        <div class="header-container">
+            <div class="logo">
+                <a href="home.html">
+                    <img src="images\mumbai121_logo.png" alt="Mumbai121"
+                        style="max-width: 250px;">
+                </a>
+            </div>
+            <button class="menu-toggle" onclick="toggleMenu()"><i class="fas fa-bars"></i></button>
+            <nav>
+                <ul id="mainMenu">
+                    <li><a href="home.html">Home</a></li>
+                    <li><a href="fresher.html">Fresher</a></li>
+                    <li><a href="pwbd.html">PwBD</a></li>
+                    <li><a href="company.html">Company</a></li>
+                    <li><a href="aboutus.html">About us</a></li>
+                    <li><a href="faq.html">FAQ's</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="hero">
+            <h1>Download the Mumbai121 App</h1>
+        </div>
+
+        <div class="content-box app-intro-text">
+            <p>Get faster access to jobs, stay updated, and register on the go!</p>
+        </div>
+
+        <div class="content-box">
+            <h2><i class="fab fa-android header-icon"></i>For Android Users</h2>
+            <p>Installing Mumbai121.com on Android is quick and safe.</p>
+            <div class="install-container">
+                <button id="installButton" class="cta-button" style="display: none;">
+                    <i class="fas fa-download"></i> DOWNLOAD NOW
+                </button>
+                <p id="installMessage"></p>
+            </div>
+        </div>
+
+        <div class="content-box">
+            <h2><i class="fab fa-apple header-icon"></i>For iPhone Users</h2>
+            <p>iPhone users can also install Mumbai121.com using Safari.</p>
+            
+            <div class="installation-steps">
+                <h3>Steps to Install:</h3>
+                <ol>
+                    <li>Open <a href="https://www.mumbai121.com/">Mumbai121.com</a> in Safari</li>
+                    <li>Tap the <strong>Share icon</strong> <i class="fas fa-share share-icon"></i> at the bottom</li>
+                    <li>Choose <strong>"Add to Home Screen"</strong></li>
+                    <li>Tap <strong>Add</strong>, and the app will appear on your Home Screen</li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="content-box">
+            <h2>Safe & Secure Installation</h2>
+            <p>Your privacy and data security are our top priority.</p>
+            
+            <ul class="icon-list security-list">
+                <li>
+                    <i class="fas fa-shield-alt"></i>
+                    <span>The app is designed to offer a fast, secure, and lightweight experience</span>
+                </li>
+                <li>
+                    <i class="fas fa-lock"></i>
+                    <span>We do not ask for any app permissions, making this app extremely safe to use</span>
+                </li>
+                <li>
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span>If at any time the app unexpectedly requests permissions, do not grant them and report it to us immediately</span>
+                </li>
+                <li>
+                    <i class="fas fa-check-circle"></i>
+                    <span>All major browsers have built-in security features—any threat will be automatically detected and blocked by your browser</span>
+                </li>
+            </ul>
+        </div>
+    </main>
+
+    <footer>
+        <p>Copyright © 2026 | <strong><a href="home.html">Mumbai121</a></strong> |
+            <strong><a href="disclaimer.html">Disclaimer</a></strong> |
+            <strong><a href="contactus.html">Contact Us</a></strong> |
+            <a href="download.html"><strong>Download the App</strong></a>
+        </p>
+    </footer>
+
+    <a href="https://wa.me/918082275000?text=Hi.%20I%20need%20support%20for%20following:" class="whatsapp-float"
+        target="_blank">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+
+    <script>
+        function toggleMenu() {
+            document.getElementById('mainMenu').classList.toggle('active');
+        }
+
+        // PWA Install Logic
+        let deferredPrompt;
+        const installButton = document.getElementById('installButton');
+        const installMessage = document.getElementById('installMessage');
+
+        // Check if the app is already installed
+        if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
+            installMessage.textContent = '✓ App is already installed!';
+            installMessage.style.color = '#188038';
+        } else {
+            // Listen for the beforeinstallprompt event
+            window.addEventListener('beforeinstallprompt', (e) => {
+                // Prevent the mini-infobar from appearing on mobile
+                e.preventDefault();
+                // Stash the event so it can be triggered later
+                deferredPrompt = e;
+                // Show the install button
+                installButton.style.display = 'inline-block';
+                installMessage.textContent = 'Click the button above to install the app';
+            });
+
+            // Handle install button click
+            installButton.addEventListener('click', async () => {
+                if (!deferredPrompt) {
+                    return;
+                }
+                // Show the install prompt
+                deferredPrompt.prompt();
+                // Wait for the user to respond to the prompt
+                const { outcome } = await deferredPrompt.userChoice;
+                
+                if (outcome === 'accepted') {
+                    installMessage.textContent = '✓ App installed successfully!';
+                    installMessage.style.color = '#188038';
+                } else {
+                    installMessage.textContent = 'Installation cancelled. You can try again anytime.';
+                    installMessage.style.color = '#d93025';
+                }
+                
+                // Clear the deferredPrompt
+                deferredPrompt = null;
+                installButton.style.display = 'none';
+            });
+
+            // If the event hasn't fired yet, show a message
+            setTimeout(() => {
+                if (installButton.style.display === 'none') {
+                    installMessage.textContent = 'To install: Open this page in Chrome or Edge browser';
+                    installMessage.style.color = '#666';
+                }
+            }, 2000);
+        }
+
+        // Listen for successful installation
+        window.addEventListener('appinstalled', () => {
+            installMessage.textContent = '✓ App installed successfully!';
+            installMessage.style.color = '#188038';
+            installButton.style.display = 'none';
+            deferredPrompt = null;
+        });
+    </script>
+</body>
+
+</html>
