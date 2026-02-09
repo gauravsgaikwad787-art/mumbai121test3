@@ -50,24 +50,40 @@
             <p>Installing Mumbai121.com on Android is quick and safe.</p>
             <div class="install-container">
                 <button id="installButton" class="cta-button" style="display: none;">
-                    <i class="fas fa-download"></i> DOWNLOAD NOW
+                    <i class="fas fa-download"></i> INSTALL APP
                 </button>
-                <p id="installMessage"></p>
+                <div id="installMessage"></div>
+            </div>
+            
+            <!-- Manual Instructions for Android -->
+            <div id="manualInstructions" class="installation-steps" style="display: none; margin-top: 20px;">
+                <h3>Alternative: Install Manually</h3>
+                <ol>
+                    <li>Open <strong>Chrome</strong> on your Android phone</li>
+                    <li>Visit <strong>https://www.mumbai121.com/</strong></li>
+                    <li>Tap the <strong>three dots menu</strong> (⋮) in the top right</li>
+                    <li>Select <strong>"Add to Home screen"</strong> or <strong>"Install app"</strong></li>
+                    <li>Tap <strong>Add</strong>, and the app icon will appear on your Home Screen</li>
+                </ol>
             </div>
         </div>
 
         <div class="content-box">
             <h2><i class="fab fa-apple header-icon"></i>For iPhone Users</h2>
-            <p>iPhone users can also install Mumbai121.com using Safari.</p>
+            <p>iPhone users can install Mumbai121.com using Safari.</p>
             
             <div class="installation-steps">
                 <h3>Steps to Install:</h3>
                 <ol>
-                    <li>Open <a href="https://www.mumbai121.com/">Mumbai121.com</a> in Safari</li>
+                    <li>Open <strong>Safari</strong> browser on your iPhone</li>
+                    <li>Visit <strong>https://www.mumbai121.com/</strong></li>
                     <li>Tap the <strong>Share icon</strong> <i class="fas fa-share share-icon"></i> at the bottom</li>
-                    <li>Choose <strong>"Add to Home Screen"</strong></li>
+                    <li>Scroll down and choose <strong>"Add to Home Screen"</strong></li>
                     <li>Tap <strong>Add</strong>, and the app will appear on your Home Screen</li>
                 </ol>
+                <p style="margin-top: 15px; color: #666; font-size: 14px;">
+                    <strong>Note:</strong> This feature only works in Safari browser. It won't work in Chrome or other browsers on iPhone.
+                </p>
             </div>
         </div>
 
@@ -114,64 +130,119 @@
             document.getElementById('mainMenu').classList.toggle('active');
         }
 
-        // PWA Install Logic
+        // PWA Install Logic - Enhanced Version
         let deferredPrompt;
         const installButton = document.getElementById('installButton');
         const installMessage = document.getElementById('installMessage');
+        const manualInstructions = document.getElementById('manualInstructions');
 
-        // Check if the app is already installed
-        if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
-            installMessage.textContent = '✓ App is already installed!';
-            installMessage.style.color = '#188038';
+        // Detect device and browser
+        function detectDeviceAndBrowser() {
+            const userAgent = navigator.userAgent.toLowerCase();
+            const isAndroid = /android/.test(userAgent);
+            const isIOS = /iphone|ipad|ipod/.test(userAgent);
+            const isChrome = /chrome/.test(userAgent) && !/edg/.test(userAgent);
+            const isEdge = /edg/.test(userAgent);
+            const isSafari = /safari/.test(userAgent) && !/chrome/.test(userAgent);
+            const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+
+            return { isAndroid, isIOS, isChrome, isEdge, isSafari, isStandalone };
+        }
+
+        const device = detectDeviceAndBrowser();
+
+        // Check if already installed
+        if (device.isStandalone) {
+            installMessage.innerHTML = '<p style="color: #188038; font-weight: 500;"><i class="fas fa-check-circle"></i> App is already installed!</p>';
         } else {
-            // Listen for the beforeinstallprompt event
-            window.addEventListener('beforeinstallprompt', (e) => {
-                // Prevent the mini-infobar from appearing on mobile
-                e.preventDefault();
-                // Stash the event so it can be triggered later
-                deferredPrompt = e;
-                // Show the install button
-                installButton.style.display = 'inline-block';
-                installMessage.textContent = 'Click the button above to install the app';
-            });
+            // Android devices
+            if (device.isAndroid) {
+                if (device.isChrome || device.isEdge) {
+                    // Chrome/Edge on Android - can use install prompt
+                    window.addEventListener('beforeinstallprompt', (e) => {
+                        e.preventDefault();
+                        deferredPrompt = e;
+                        installButton.style.display = 'inline-block';
+                        installMessage.innerHTML = '<p style="color: #1a73e8;">Click the button above to install the app quickly!</p>';
+                    });
 
-            // Handle install button click
-            installButton.addEventListener('click', async () => {
-                if (!deferredPrompt) {
-                    return;
-                }
-                // Show the install prompt
-                deferredPrompt.prompt();
-                // Wait for the user to respond to the prompt
-                const { outcome } = await deferredPrompt.userChoice;
-                
-                if (outcome === 'accepted') {
-                    installMessage.textContent = '✓ App installed successfully!';
-                    installMessage.style.color = '#188038';
+                    installButton.addEventListener('click', async () => {
+                        if (!deferredPrompt) return;
+                        deferredPrompt.prompt();
+                        const { outcome } = await deferredPrompt.userChoice;
+                        
+                        if (outcome === 'accepted') {
+                            installMessage.innerHTML = '<p style="color: #188038;"><i class="fas fa-check-circle"></i> App installed successfully!</p>';
+                        } else {
+                            installMessage.innerHTML = '<p style="color: #d93025;">Installation cancelled. Try the manual method below.</p>';
+                            manualInstructions.style.display = 'block';
+                        }
+                        
+                        deferredPrompt = null;
+                        installButton.style.display = 'none';
+                    });
+
+                    // If prompt doesn't fire, show manual instructions
+                    setTimeout(() => {
+                        if (!deferredPrompt) {
+                            manualInstructions.style.display = 'block';
+                            installMessage.innerHTML = '<p style="color: #666;">Automatic install not available. Please use manual method below:</p>';
+                        }
+                    }, 3000);
+
                 } else {
-                    installMessage.textContent = 'Installation cancelled. You can try again anytime.';
-                    installMessage.style.color = '#d93025';
+                    // Other browsers on Android
+                    manualInstructions.style.display = 'block';
+                    installMessage.innerHTML = '<p style="color: #ff9800;"><i class="fas fa-info-circle"></i> For best experience, please open this page in <strong>Chrome</strong> browser, then follow the instructions below:</p>';
                 }
-                
-                // Clear the deferredPrompt
-                deferredPrompt = null;
-                installButton.style.display = 'none';
-            });
+            } 
+            // iOS devices
+            else if (device.isIOS) {
+                if (!device.isSafari) {
+                    installMessage.innerHTML = '<p style="color: #ff9800;"><i class="fas fa-info-circle"></i> For iPhone, you must use <strong>Safari</strong> browser. Please see the "For iPhone Users" section below.</p>';
+                } else {
+                    installMessage.innerHTML = '<p style="color: #1a73e8;"><i class="fas fa-arrow-down"></i> See installation steps in the "For iPhone Users" section below.</p>';
+                }
+            }
+            // Desktop or other devices
+            else {
+                if (device.isChrome || device.isEdge) {
+                    window.addEventListener('beforeinstallprompt', (e) => {
+                        e.preventDefault();
+                        deferredPrompt = e;
+                        installButton.style.display = 'inline-block';
+                        installMessage.innerHTML = '<p style="color: #1a73e8;">Click the button above to install!</p>';
+                    });
 
-            // If the event hasn't fired yet, show a message
-            setTimeout(() => {
-                if (installButton.style.display === 'none') {
-                    installMessage.textContent = 'To install: Open this page in Chrome or Edge browser';
-                    installMessage.style.color = '#666';
+                    installButton.addEventListener('click', async () => {
+                        if (!deferredPrompt) return;
+                        deferredPrompt.prompt();
+                        const { outcome } = await deferredPrompt.userChoice;
+                        
+                        if (outcome === 'accepted') {
+                            installMessage.innerHTML = '<p style="color: #188038;"><i class="fas fa-check-circle"></i> App installed!</p>';
+                        }
+                        
+                        deferredPrompt = null;
+                        installButton.style.display = 'none';
+                    });
+
+                    setTimeout(() => {
+                        if (!deferredPrompt) {
+                            installMessage.innerHTML = '<p style="color: #666;">To install: Use Chrome or Edge browser and look for the install icon in the address bar.</p>';
+                        }
+                    }, 3000);
+                } else {
+                    installMessage.innerHTML = '<p style="color: #666;">To install this app, please use <strong>Chrome</strong> or <strong>Edge</strong> browser.</p>';
                 }
-            }, 2000);
+            }
         }
 
         // Listen for successful installation
         window.addEventListener('appinstalled', () => {
-            installMessage.textContent = '✓ App installed successfully!';
-            installMessage.style.color = '#188038';
+            installMessage.innerHTML = '<p style="color: #188038;"><i class="fas fa-check-circle"></i> App installed successfully!</p>';
             installButton.style.display = 'none';
+            manualInstructions.style.display = 'none';
             deferredPrompt = null;
         });
     </script>
